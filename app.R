@@ -5,22 +5,34 @@ library(plotly)
 library(shinydashboard)
 source("dashboard_helper.R")
 
-ui <- dashboardPage(
+ui <- dashboardPage( title = "Crypto App", skin = "purple",
     dashboardHeader(title = "Crypto Dashboard"),
     dashboardSidebar(
         sidebarMenu(
+            menuItem("Info",
+                     tabName = "Info",
+                     icon = icon("info")),
+            
             menuItem("consensus",
                      tabName = "class_tab",
-                     icon = icon("dashboard")),
+                     icon = icon("bitcoin")),
             menuItem("1 vs 1",
                      tabName = "head_tab",
-                     icon = icon("dashboard")),
+                     icon = icon("hand-rock")),
             menuItem("Crypto",
                      tabName = "crypto_tab",
-                     icon = icon("dashboard"))
+                     icon = icon("connectdevelop"))
         )
     ),
     dashboardBody(
+        tabItems(
+            tabItem(tabName = "Info",
+                    h4("Elaborado por:"),
+                    h4("Cinzia Zullian"),
+                    p(""),)),
+
+                    
+        
         tabItems(
             tabItem(tabName = "class_tab",
                     box(plotlyOutput("elo_timeseries")),
@@ -118,11 +130,11 @@ server <- function(input, output) {
             select(crypto)
         
         ggplotly(
-            ggplot(data = elo_timeseries_df, aes(x = date, y = elo)) + 
+            ggplot(data = elo_timeseries_df, aes(x = avg_total, y = elo)) + 
                 geom_point() + 
                 geom_point(data = elo_timeseries_df %>% filter(crypto %in% top_5_cryptos$crypto),
-                           aes(x = date, y = elo, color = crypto)) +
-                theme(legend.position = "top")
+                          aes(x = avg_total, y = elo, color = crypto)) +
+               theme(legend.position = "top")
         )
     })
     output$elo_dist <- renderPlotly({
@@ -132,7 +144,7 @@ server <- function(input, output) {
         valueBox(
             value = paste(round(100*predict(elo(), data.frame(crypto = input$v_crypto, opponent = input$v_opponent)),0), "%", sep = ""),
             subtitle = paste(input$v_crypto, " Probability", sep = ""),
-            color = "blue",
+            color = "yellow",
             icon = icon("code-fork")
         )
     })
@@ -140,7 +152,7 @@ server <- function(input, output) {
         valueBox(
             value = paste(round(100*predict(elo(), data.frame(crypto = input$v_opponent, opponent = input$v_crypto)),0), "%", sep = ""),
             subtitle = paste(input$v_opponent, " Probability", sep = ""),
-            color = "red",
+            color = "purple",
             icon = icon("link")
         )
     })
